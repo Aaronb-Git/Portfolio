@@ -1,46 +1,41 @@
 import { useState, type FormEvent } from 'react'
 
-const recipient = 'aaron.bueb@epitech.eu'
-
 export function useContactForm() {
     const [contactStatus, setContactStatus] = useState('')
-    const [draft, setDraft] = useState<{ subject: string; body: string } | null>(null)
+    const [isSending, setIsSending] = useState(false)
 
-    function submitContact(event: FormEvent<HTMLFormElement>) {
+    async function submitContact(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
         const form = event.currentTarget
-        if (!form.reportValidity()) return
+        if (isSending || !form.reportValidity()) return
 
         const data = new FormData(form)
-        const name = String(data.get('fullname') ?? '').trim()
-        const subject = String(data.get('subject') ?? '').trim()
-        const message = String(data.get('message') ?? '').trim()
-        const email = String(data.get('email') ?? '').trim()
-
-        if (!name || !subject || !message) {
-            setDraft(null)
-            setContactStatus('Veuillez renseigner votre nom, l’objet et votre message.')
-            return
+        for (const field of ['fullname', 'email', 'subject', 'message']) {
+            const value = String(data.get(field) ?? '').trim()
+            if (!value) {
+                setContactStatus('Veuillez renseigner tous les champs.')
+                return
+            }
+            data.set(field, value)
         }
 
-        const body = message + '\r\n\r\n' + name + '\r\nE-mail de contact : ' + email
-        setDraft({ subject, body })
-        setContactStatus('Message prêt à envoyer depuis votre messagerie.')
-    }
-
-    const mailto = draft
-        ? 'mailto:' + recipient + '?subject=' + encodeURIComponent(draft.subject) + '&body=' + encodeURIComponent(draft.body)
-        : ''
-    const draftText = draft ? 'À : ' + recipient + '\nObjet : ' + draft.subject + '\n\n' + draft.body : ''
-
-    async function copyDraft() {
+        setIsSending(true)
+        setContactStatus('Envoi en cours…')
         try {
-            await navigator.clipboard.writeText(draftText)
-            setContactStatus('Message copié. Collez-le dans votre messagerie.')
+            const response = await fetch('https://formspree.io/f/mbgolyza', {
+                method: 'POST',
+                headers: { Accept: 'application/json' },
+                body: data,
+            })
+            if (!response.ok) throw new Error('Envoi refusé')
+            form.reset()
+            setContactStatus('Votre message a bien été envoyé.')
         } catch {
-            setContactStatus('Sélectionnez le texte ci-dessous pour le copier manuellement.')
+            setContactStatus('L’envoi a échoué. Réessayez ou utilisez l’adresse e-mail indiquée sur cette page.')
+        } finally {
+            setIsSending(false)
         }
     }
 
-    return { contactStatus, copyDraft, draftText, mailto, submitContact }
+    return { contactStatus, isSending, submitContact }
 }

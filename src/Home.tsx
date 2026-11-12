@@ -1,7 +1,7 @@
 import { useContactForm } from "./useContactForm"
 
 export default function Home() {
-    const { contactStatus, copyDraft, draftText, mailto, submitContact } = useContactForm()
+    const { submitContact, contactStatus, isSending } = useContactForm()
 
     return (
         <>
@@ -485,24 +485,12 @@ export default function Home() {
                             <textarea id="message" name="message" placeholder="Parlons de votre proposition…" rows={5} maxLength={4000} required></textarea>
                         </div>
                         <p className="form-note">
-                            Préparez votre message, puis ouvrez votre messagerie ou copiez le texte pour l’envoyer.
+                            Votre message est envoyé directement depuis ce formulaire.
                         </p>
-                        <button type="submit" className="main-button">
-                            PRÉPARER MON E-MAIL <span aria-hidden="true">↗</span>
+                        <button type="submit" className="main-button" disabled={isSending}>
+                            {isSending ? "ENVOI EN COURS…" : "ENVOYER MON MESSAGE"} <span aria-hidden="true">↗</span>
                         </button>
                         <p id="form-status" className="form-status" role="status">{contactStatus}</p>
-                        {mailto && (
-                            <div className="contact-draft">
-                                <div className="contact-draft-actions">
-                                    <a className="secondary-button" href={mailto}>OUVRIR MA MESSAGERIE</a>
-                                    <button type="button" className="secondary-button" onClick={copyDraft}>COPIER LE MESSAGE</button>
-                                </div>
-                                <div className="input-group">
-                                    <label htmlFor="contact-draft">MESSAGE À COPIER</label>
-                                    <textarea id="contact-draft" readOnly value={draftText} rows={6} />
-                                </div>
-                            </div>
-                        )}
                         <noscript>
                             <p>
                                 Pour me contacter, écrivez directement à <a href="mailto:aaron.bueb@epitech.eu">aaron.bueb@epitech.eu</a>.
@@ -553,7 +541,7 @@ export default function Home() {
                     <article className="learning-panel">
                         <h2>Contact et données</h2>
                         <p>
-                            Le formulaire prépare un message à ouvrir ou à copier dans votre messagerie. Le site ne transmet ni ne conserve les champs saisis sur un serveur. L’envoi doit être confirmé dans votre messagerie.
+                            Le formulaire transmet les informations saisies à Formspree, qui les achemine par e-mail.
                         </p>
                         <p>Ce portfolio n’utilise ni outil de mesure d’audience ni cookie applicatif.</p>
                     </article>
