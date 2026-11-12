@@ -272,3 +272,7 @@ tbody th { color:var(--paper); font-weight:500; width:42%; }
 /* Une rubrique active à la fois, comme dans l’interface d’origine. */
 .page-section + .page-section { min-height:calc(100svh - 156px); }
 @media(max-width:700px) { .page-section + .page-section { min-height:calc(100svh - 165px); } .case-lead,.reflection-grid { grid-template-columns:1fr; } th,td { padding:12px; font-size:12px; overflow-wrap:anywhere; } }
+
+.contact-draft { margin-top: 18px; }
+.contact-draft-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.contact-draft-actions .secondary-button { max-width: 100%; white-space: normal; }
